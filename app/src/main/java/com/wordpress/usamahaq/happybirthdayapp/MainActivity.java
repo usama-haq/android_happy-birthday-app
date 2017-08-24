@@ -2,12 +2,17 @@ package com.wordpress.usamahaq.happybirthdayapp;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -18,6 +23,7 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
     private static final int READ_CONTACTS_PERMISSION_REQUEST = 1;
     private static final String DEBUG = "MainActivity: ";
+    private SimpleCursorAdapter adapter;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -32,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +56,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        setupCursorAdapter();
 
         getPermissionToReadUserContacts();
+    }
+
+    private void setupCursorAdapter() {
+        String[] uiBindFrom = {
+                ContactsContract.Contacts.DISPLAY_NAME,
+                ContactsContract.Contacts.PHOTO_URI};
+
+        int[] uiBindTo = { R.id.textview_Name, R.id.imageview_Image };
+
+        adapter = new SimpleCursorAdapter(this, R.layout.contact_list_item, null, uiBindFrom, uiBindTo, 0);
+
+
     }
 
     private void getPermissionToReadUserContacts() {
@@ -91,5 +111,23 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private LoaderManager.LoaderCallbacks<Cursor> contactsLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
+
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            return null;
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+
+        }
+    }
 
 }

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">HappyBirthdayApp</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_about_me">About Me!</string>
 
     <string name="main.email.body">Wishing you a day that is as special, in every way, as you are. Happy Birthday %s</string>
     <string name="main.email.subject">Happy Birthday</string>

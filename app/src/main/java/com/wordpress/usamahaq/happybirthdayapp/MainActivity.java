@@ -26,6 +26,13 @@ import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
+
+    /**
+     * ============================================================================================
+     * Data Members
+     * ============================================================================================
+     */
+
     private static final String DEBUG = "MainActivity: ";
     private static final int READ_CONTACTS_PERMISSION_REQUEST = 1;
     private static final int MY_CONTACT_LOADER_ID = 90;
@@ -85,6 +92,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         getPermissionToReadUserContacts();
     }
 
+
+    /**
+     * ============================================================================================
+     * Public Methods
+     * ============================================================================================
+     */
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
@@ -99,35 +113,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-
-    private void setupCursorAdapter() {
-        String[] uiBindFrom = {
-                ContactsContract.Contacts.DISPLAY_NAME,
-                ContactsContract.Contacts.PHOTO_URI};
-
-        int[] uiBindTo = {R.id.textview_Name, R.id.imageview_Image};
-
-        adapter = new SimpleCursorAdapter(this, R.layout.contact_list_item, null, uiBindFrom, uiBindTo, 0);
-
-
-    }
-
-    private void getPermissionToReadUserContacts() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_PERMISSION_REQUEST);
-            } else {
-                loadingContacts();
-            }
-        }
-    }
-
-    private void loadingContacts() {
-
-        Log.d(DEBUG, "We have permission to load contacts."
-        );
-        getSupportLoaderManager().initLoader(MY_CONTACT_LOADER_ID, new Bundle(), myContactsLoader);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -144,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_about_me) {
             return true;
         }
 
@@ -170,6 +155,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             sendEmail(email, contactName);
         }
     }
+
+
+    public void loadAboutMe(MenuItem item) {
+        Intent aboutMe = new Intent(MainActivity.this, AboutMeActivity.class);
+        startActivity(aboutMe);
+    }
+
+
+    /**
+     * ============================================================================================
+     * Private Methods
+     * ============================================================================================
+     */
 
     private void sendEmail(String email, String contactname) {
 
@@ -206,5 +204,34 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         return email;
+    }
+
+    private void setupCursorAdapter() {
+        String[] uiBindFrom = {
+                ContactsContract.Contacts.DISPLAY_NAME,
+                ContactsContract.Contacts.PHOTO_URI};
+
+        int[] uiBindTo = {R.id.textview_Name, R.id.imageview_Image};
+
+        adapter = new SimpleCursorAdapter(this, R.layout.contact_list_item, null, uiBindFrom, uiBindTo, 0);
+
+
+    }
+
+    private void getPermissionToReadUserContacts() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_PERMISSION_REQUEST);
+            } else {
+                loadingContacts();
+            }
+        }
+    }
+
+    private void loadingContacts() {
+
+        Log.d(DEBUG, "We have permission to load contacts."
+        );
+        getSupportLoaderManager().initLoader(MY_CONTACT_LOADER_ID, new Bundle(), myContactsLoader);
     }
 }

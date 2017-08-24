@@ -7,10 +7,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
@@ -19,11 +19,44 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity {
     private static final int READ_CONTACTS_PERMISSION_REQUEST = 1;
     private static final String DEBUG = "MainActivity: ";
+    private static final int MY_CONTACT_LOADER_ID = 90;
     private SimpleCursorAdapter adapter;
+    private LoaderManager.LoaderCallbacks<Cursor> myContactsLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
+
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            String[] projectionFields = new String[]{
+                    ContactsContract.Contacts._ID,
+                    ContactsContract.Contacts.DISPLAY_NAME,
+                    ContactsContract.Contacts.PHOTO_URI
+            };
+
+            CursorLoader cursorLoader = new CursorLoader(MainActivity.this,
+                    ContactsContract.Contacts.CONTENT_URI, projectionFields,
+                    null, null, null);
+
+
+            return cursorLoader;
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+            adapter.swapCursor(data);
+
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            adapter.swapCursor(null);
+        }
+    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -38,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +89,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupCursorAdapter();
-
+        ListView listViewContacts = (ListView) findViewById(R.id.listview_Contacts);
+        listViewContacts.setAdapter(adapter);
         getPermissionToReadUserContacts();
     }
 
@@ -66,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 ContactsContract.Contacts.DISPLAY_NAME,
                 ContactsContract.Contacts.PHOTO_URI};
 
-        int[] uiBindTo = { R.id.textview_Name, R.id.imageview_Image };
+        int[] uiBindTo = {R.id.textview_Name, R.id.imageview_Image};
 
         adapter = new SimpleCursorAdapter(this, R.layout.contact_list_item, null, uiBindFrom, uiBindTo, 0);
 
@@ -76,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
     private void getPermissionToReadUserContacts() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-
                 requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_PERMISSION_REQUEST);
             } else {
                 loadingContacts();
@@ -85,9 +117,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadingContacts() {
-        Log.d(DEBUG, "We have permission to load contacts.");
-    }
 
+        Log.d(DEBUG, "We have permission to load contacts."
+        );
+        getSupportLoaderManager().initLoader(MY_CONTACT_LOADER_ID, new Bundle(), myContactsLoader);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,25 +143,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private LoaderManager.LoaderCallbacks<Cursor> contactsLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
-
-
-        @Override
-        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            return null;
-        }
-
-        @Override
-        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
-        }
-
-        @Override
-        public void onLoaderReset(Loader<Cursor> loader) {
-
-        }
     }
 
 }

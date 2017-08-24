@@ -1,8 +1,10 @@
 package com.wordpress.usamahaq.happybirthdayapp;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -19,12 +21,16 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private static final int READ_CONTACTS_PERMISSION_REQUEST = 1;
     private static final String DEBUG = "MainActivity: ";
     private static final int MY_CONTACT_LOADER_ID = 90;
+    private static final int LOOKUP_KEY_INDEX = 1;
+    private static final int CONTACT_ID_INDEX = 0;
+
     private SimpleCursorAdapter adapter;
     private LoaderManager.LoaderCallbacks<Cursor> myContactsLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
 
@@ -91,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         setupCursorAdapter();
         ListView listViewContacts = (ListView) findViewById(R.id.listview_Contacts);
         listViewContacts.setAdapter(adapter);
+        listViewContacts.setOnItemClickListener(this);
         getPermissionToReadUserContacts();
     }
 
@@ -145,4 +152,59 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        Cursor cursor = ((SimpleCursorAdapter) adapterView.getAdapter()).getCursor();
+
+        cursor.moveToPosition(i);
+
+        String contactName = cursor.getString(LOOKUP_KEY_INDEX);
+        Uri contactUri = ContactsContract.Contacts.getLookupUri(
+                cursor.getLong(CONTACT_ID_INDEX),
+                contactName
+        );
+
+        String email = getEmail(contactUri);
+
+        if (!email.equals("")) {
+            sendEmail(email, contactName);
+        }
+    }
+
+    private void sendEmail(String email, String contactname) {
+
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto",
+                email,
+                null
+        ));
+
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.main_email_subject));
+        emailIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.main_email_body, contactname));
+
+        startActivity(Intent.createChooser(emailIntent, getString(R.string.main_email_choose)));
+
+
+    }
+
+    private String getEmail(Uri contactUri) {
+        String email = "";
+        String id = contactUri.getLastPathSegment();
+
+        Cursor cursor = getContentResolver().query(
+                ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                null,
+                ContactsContract.CommonDataKinds.Email.CONTACT_ID + "=?",
+                new String[]{id},
+                null
+        );
+
+        int emailId = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
+
+        if (cursor.moveToFirst()) {
+            email = cursor.getString(emailId);
+        }
+
+        return email;
+    }
 }

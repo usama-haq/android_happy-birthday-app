@@ -25,12 +25,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    private static final int READ_CONTACTS_PERMISSION_REQUEST = 1;
+
     private static final String DEBUG = "MainActivity: ";
+    private static final int READ_CONTACTS_PERMISSION_REQUEST = 1;
     private static final int MY_CONTACT_LOADER_ID = 90;
     private static final int LOOKUP_KEY_INDEX = 1;
     private static final int CONTACT_ID_INDEX = 0;
-
     private SimpleCursorAdapter adapter;
     private LoaderManager.LoaderCallbacks<Cursor> myContactsLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
 
@@ -53,9 +53,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
             adapter.swapCursor(data);
-
         }
 
         @Override
@@ -63,20 +61,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             adapter.swapCursor(null);
         }
     };
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        switch (requestCode) {
-            case READ_CONTACTS_PERMISSION_REQUEST:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    loadingContacts();
-                else
-                    Log.d(DEBUG, "Permission denied to read contacts.");
-                break;
-        }
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +84,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         listViewContacts.setOnItemClickListener(this);
         getPermissionToReadUserContacts();
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        switch (requestCode) {
+            case READ_CONTACTS_PERMISSION_REQUEST:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    loadingContacts();
+                else
+                    Log.d(DEBUG, "Permission denied to read contacts.");
+                break;
+        }
+
+    }
+
 
     private void setupCursorAdapter() {
         String[] uiBindFrom = {
@@ -153,12 +152,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Cursor cursor = ((SimpleCursorAdapter) adapterView.getAdapter()).getCursor();
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor cursor = ((SimpleCursorAdapter) parent.getAdapter()).getCursor();
 
-        cursor.moveToPosition(i);
+        cursor.moveToPosition(position);
 
         String contactName = cursor.getString(LOOKUP_KEY_INDEX);
+
         Uri contactUri = ContactsContract.Contacts.getLookupUri(
                 cursor.getLong(CONTACT_ID_INDEX),
                 contactName

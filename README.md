@@ -54,7 +54,4 @@ The following **bonus** features are implemented:
 
 ## App Images
 
-<img src='' title='Video Walkthrough' width='' alt='Video Walkthrough' height="400" width="200" />
-
-<img src='' title='Video Walkthrough' width='' alt='Video Walkthrough' height="400" width="200"  />
-
+<img src='https://github.com/usama-haq/android_happy-birthday-app/raw/master/img/app-screenshot-01.jpg' title='App Screenshot' width='' alt='App Screenshot' height="400" width="200" />
